@@ -1,6 +1,9 @@
 
 from . import views
 from django.urls import path
+from django.conf.urls.static import static
+from django.conf import settings
+
 
 urlpatterns = [
     path('server', views.serverInfoView),
@@ -13,4 +16,7 @@ urlpatterns = [
     path('form.html', views.render_form_View),
 
 
-]
+
+]+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
