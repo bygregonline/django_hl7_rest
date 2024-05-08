@@ -70,7 +70,7 @@ Returns:
 
 
 def installedModulesView(req):
-    return HttpResponse(W.get_all_libs(), content_type='application/json')
+    return JsonResponse(W.get_all_libs(ft='json'), safe=False)
 
 
 #
