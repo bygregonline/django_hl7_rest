@@ -1,0 +1,6 @@
+venv
+app/app/__pycache__/*
+
+app/hl7rest/__pycache__/*
+.history/*
+app/hl7rest/migrations/*
