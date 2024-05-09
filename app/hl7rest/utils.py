@@ -1,6 +1,6 @@
 
 
-def getDictFromHL7(segment):
+def get_dict_from_HL7(segment):
     """[summary]
 
     Arguments:
@@ -39,6 +39,7 @@ def value_or_default(req, key='', default=''):
     try:
         return (req.GET[key] if req.method == 'GET' else req.POST[key])
 
-    except Exception as E:
+    except Exception as e:
+        print(e)
 
         return default

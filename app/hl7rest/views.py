@@ -4,72 +4,45 @@ from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 import json
 import psutil
 from django.views.decorators.csrf import csrf_exempt
-from .utils import getDictFromHL7, value_or_default
+from .utils import get_dict_from_HL7, value_or_default
 from django.views.decorators.csrf import csrf_exempt
 from json2html import json2html
 from dicttoxml import dicttoxml
 import yaml
 from hl7apy.parser import parse_segment
 from .forms import Simple_submit_Form
+from django.core.handlers.wsgi import WSGIRequest
+from datetime import datetime
 
 
-# Create your views here.
 
 
-def serverInfoView(req):
-    """
-    for educational purposes
-
-
-Returns:
-    HttpResponse -- Response object with all intalled python modules
-"""
+def server_info_view(req: WSGIRequest) -> JsonResponse:
     W.get_all_libs('json')
     return JsonResponse(json.loads(W.get_fetchdata(format='json')), safe=False)
 
 
-"""
-    for educational purposes
+
+def server_date_view(req: WSGIRequest) -> JsonResponse:
+    return JsonResponse({'date': str(datetime.now())})
 
 
-Returns:
-    HttpResponse -- Response object with all intalled python modules
-"""
 
-
-def defaultHomeView(req):
+def default_home_view(req: WSGIRequest) -> HttpResponse:
     return render(req, 'home_page.html')
 
 
-"""
-    for educational purposes
 
 
-Returns:
-    HttpResponse -- Response object with all intalled python modules
-"""
-
-
-def processView(req):
+def process_view(req: WSGIRequest) -> JsonResponse:
     ps = list()
     for proc in psutil.process_iter():
         ps.append(proc.as_dict(
             attrs=['pid', 'name', 'cpu_percent', 'username']))
-
-
     return JsonResponse(ps, safe=False)
 
 
-"""
-    for educational purposes
-
-
-Returns:
-    HttpResponse -- Response object with all intalled python modules
-"""
-
-
-def installedModulesView(req):
+def server_installed_modules_view(req: WSGIRequest) -> JsonResponse:
     return JsonResponse(W.get_all_libs(ft='json'), safe=False)
 
 
@@ -77,19 +50,18 @@ def installedModulesView(req):
 # TODOS MORE INFO
 #
 @csrf_exempt
-def hl7_web_view(req):
+def hl7_web_view(req: WSGIRequest)-> HttpResponse:
     d = {}
     format = value_or_default(req, 'format', 'json')
     data = value_or_default(req, 'data', '')
     try:
 
-        d = getDictFromHL7(parse_segment(data))
+        d = get_dict_from_HL7(parse_segment(data))
     except Exception as e:
         d['error'] = str(e)
 
     if format == 'json':
         return HttpResponse(json.dumps(d), content_type='application/json')
-
     elif format == 'xml':
         return HttpResponse(dicttoxml(d, custom_root='hl7'), content_type='application/xml')
     elif format == 'html':
@@ -103,31 +75,15 @@ def hl7_web_view(req):
         return HttpResponse(' unavailable format', content_type='application/json')
 
 
-def _403View(req):
-    """[summary]
-
-    Arguments:
-        req {[type]} -- MORE TODOS
-
-    Returns:
-        [type] -- [description]
-    """
+def _403_view(req: WSGIRequest) -> HttpResponseForbidden:
     return HttpResponseForbidden()
 
 
-def infoheadersView(req):
-    """[summary]
-
-    Arguments:
-        req {[type]} -- [description]
-
-    Returns:
-        [type] -- [description]
-    """
-
+def info_headers_view(req: WSGIRequest) -> HttpResponse:
     return HttpResponse(json.dumps(dict(req.headers)), content_type='application/json')
 
 
-def render_form_View(req):
+def render_form_view(req: WSGIRequest) -> HttpResponse:
+
 
     return render(req, 'display_form.html', {'form': Simple_submit_Form()})
